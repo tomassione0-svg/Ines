@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0a1e">
+<title>Nuestras Citas</title>
+<link rel="apple-touch-icon" href="icon-citas.png">
+<link rel="manifest" href="manifest-citas.json">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0f0a1e;
+  --bg-card: rgba(255,255,255,0.06);
+  --bg-card-hover: rgba(255,255,255,0.1);
+  --accent: #e8a0bf;
+  --accent-bright: #f472b6;
+  --accent-soft: #fce4ec;
+  --gold: #e8b87c;
+  --text: #f5f0ff;
+  --text-muted: rgba(245,240,255,0.55);
+  --glass: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.12);
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3);
+  --gradient-main: linear-gradient(135deg, #e8a0bf 0%, #d4788c 50%, #c06080 100%);
+  --gradient-gold: linear-gradient(135deg, #e8b87c 0%, #d4a06c 100%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 100px;
+}
+
+/* ── Fondo animado con partículas ── */
+.bg-particles {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.bg-particles .orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3;
+  animation: floatOrb 20s ease-in-out infinite alternate;
+}
+.bg-particles .orb:nth-child(1) {
+  width: 300px; height: 300px; background: #e8a0bf; top: -100px; left: -50px;
+}
+.bg-particles .orb:nth-child(2) {
+  width: 250px; height: 250px; background: #7c5cbf; bottom: -80px; right: -60px;
+  animation-delay: -7s;
+}
+.bg-particles .orb:nth-child(3) {
+  width: 200px; height: 200px; background: #d4788c; top: 40%; left: 60%;
+  animation-delay: -14s;
+}
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.1); }
+  100% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* ── Corazones flotantes ── */
+.floating-hearts {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1; overflow: hidden;
+}
+.heart-particle {
+  position: absolute; font-size: 14px; opacity: 0;
+  animation: floatHeart linear infinite;
+}
+@keyframes floatHeart {
+  0% { opacity: 0; transform: translateY(100vh) rotate(0deg) scale(0.5); }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.3; }
+  100% { opacity: 0; transform: translateY(-10vh) rotate(360deg) scale(1.2); }
+}
+
+/* ── Contenedor principal ── */
+.container {
+  position: relative; z-index: 2;
+  max-width: 480px; margin: 0 auto; padding: 0 16px;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center; padding: 50px 0 30px;
+}
+.header-icon {
+  font-size: 48px; margin-bottom: 8px;
+  animation: heartBeat 1.5s ease-in-out infinite;
+}
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 700;
+  background: var(--gradient-main);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header p {
+  font-size: 13px; color: var(--text-muted); margin-top: 4px;
+  font-style: italic;
+}
+
+/* ── Frase del día ── */
+.quote-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius); padding: 24px 20px;
+  margin-bottom: 24px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.quote-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-main);
+}
+.quote-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--accent); margin-bottom: 12px; font-weight: 500;
+}
+.quote-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-style: italic; line-height: 1.5;
+  color: var(--accent-soft);
+}
+.quote-icon {
+  font-size: 24px; margin-top: 12px; opacity: 0.5;
+}
+
+/* ── Secciones ── */
+.section { margin-bottom: 24px; }
+.section-title {
+  font-size: 14px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--accent);
+  margin-bottom: 12px; padding-left: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title span { font-size: 16px; }
+
+/* ── Calendario ── */
+.calendar-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.cal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.cal-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 400;
+}
+.cal-nav {
+  display: flex; gap: 8px;
+}
+.cal-nav button {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  color: var(--text); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.cal-nav button:active { transform: scale(0.92); background: var(--bg-card-hover); }
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+.cal-weekdays span {
+  text-align: center; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); padding: 4px 0;
+}
+.cal-days {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 12px; font-size: 14px; cursor: pointer;
+  transition: all 0.2s; position: relative;
+  background: transparent; border: none; color: var(--text);
+  font-family: 'Poppins', sans-serif;
+}
+.cal-day:hover { background: var(--glass); }
+.cal-day.today {
+  border: 1px solid var(--accent); color: var(--accent); font-weight: 600;
+}
+.cal-day.selected {
+  background: var(--gradient-main); color: white; font-weight: 600;
+  box-shadow: 0 4px 15px rgba(232,160,191,0.4);
+}
+.cal-day.has-event::after {
+  content: ''; position: absolute; bottom: 4px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent-bright);
+}
+.cal-day.other-month { opacity: 0.25; }
+.cal-day.past { opacity: 0.4; }
+
+.selected-date-display {
+  margin-top: 16px; padding: 12px 16px;
+  background: rgba(232,160,191,0.1); border-radius: 12px;
+  border: 1px solid rgba(232,160,191,0.2);
+  text-align: center; font-size: 14px;
+  display: none;
+}
+.selected-date-display.show { display: block; }
+.selected-date-display .date-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; color: var(--accent-soft);
+}
+
+/* ── Categorías de lugares ── */
+.categories-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.category-btn {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius); padding: 16px 12px;
+  text-align: center; cursor: pointer;
+  transition: all 0.3s; text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.category-btn:active {
+  transform: scale(0.96); background: var(--bg-card-hover);
+  border-color: var(--accent);
+}
+.category-btn .cat-icon { font-size: 28px; }
+.category-btn .cat-name { font-size: 13px; font-weight: 500; }
+.category-btn .cat-desc { font-size: 10px; color: var(--text-muted); }
+
+/* ── Modal de lugar personalizado ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  z-index: 100; display: none; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  background: #1a1230; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 480px; padding: 24px 20px 40px;
+  animation: slideUp 0.3s ease;
+  max-height: 85vh; overflow-y: auto;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); } to { transform: translateY(0); }
+}
+.modal-handle {
+  width: 40px; height: 4px; background: rgba(255,255,255,0.2);
+  border-radius: 2px; margin: 0 auto 20px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; margin-bottom: 16px; text-align: center;
+}
+.modal-input {
+  width: 100%; padding: 14px 16px; border-radius: 12px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  color: var(--text); font-size: 15px; font-family: 'Poppins', sans-serif;
+  margin-bottom: 12px; outline: none;
+  transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-input::placeholder { color: var(--text-muted); }
+textarea.modal-input { min-height: 80px; resize: none; }
+.modal-search-results {
+  margin-bottom: 16px; max-height: 200px; overflow-y: auto;
+}
+.search-result-item {
+  padding: 12px 14px; background: var(--glass); border-radius: 10px;
+  margin-bottom: 6px; cursor: pointer; transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.search-result-item:active { border-color: var(--accent); background: var(--bg-card-hover); }
+.search-result-item .place-name { font-size: 14px; font-weight: 500; }
+.search-result-item .place-info { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.modal-actions {
+  display: flex; gap: 10px; margin-top: 8px;
+}
+.btn {
+  flex: 1; padding: 14px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  border: none; font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--gradient-main); color: white;
+  box-shadow: 0 4px 15px rgba(232,160,191,0.3);
+}
+.btn-secondary {
+  background: var(--glass); color: var(--text);
+  border: 1px solid var(--glass-border);
+}
+.btn-danger {
+  background: rgba(239,68,68,0.15); color: #f87171;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+.btn-whatsapp {
+  background: #25d366; color: white;
+  box-shadow: 0 4px 15px rgba(37,211,102,0.3);
+}
+.btn-icon { display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* ── Citas guardadas ── */
+.saved-dates { display: flex; flex-direction: column; gap: 10px; }
+.date-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius); padding: 16px;
+  position: relative; overflow: hidden;
+}
+.date-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--gradient-main);
+}
+.date-card-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.date-card-info h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; margin-bottom: 2px;
+}
+.date-card-info .date-place {
+  font-size: 13px; color: var(--accent); display: flex; align-items: center; gap: 4px;
+}
+.date-card-info .date-notes {
+  font-size: 12px; color: var(--text-muted); margin-top: 6px;
+}
+.date-card-info .date-category {
+  font-size: 11px; color: var(--text-muted); margin-top: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.date-card-actions {
+  display: flex; gap: 6px;
+}
+.date-card-actions button {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  color: var(--text-muted); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.date-card-actions button:active { transform: scale(0.9); }
+
+.empty-state {
+  text-align: center; padding: 30px 20px;
+  color: var(--text-muted); font-size: 14px;
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.5; }
+
+/* ── Acciones globales ── */
+.global-actions {
+  display: flex; gap: 10px; margin-top: 16px;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: #1a1230; border: 1px solid var(--accent);
+  color: var(--text); padding: 12px 24px; border-radius: 30px;
+  font-size: 13px; z-index: 200; opacity: 0;
+  transition: opacity 0.3s; pointer-events: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Búsqueda Google Maps dentro del modal ── */
+.search-actions {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.search-btn {
+  flex: 1; padding: 10px; border-radius: 10px;
+  background: rgba(66,133,244,0.15); border: 1px solid rgba(66,133,244,0.3);
+  color: #93bbfc; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  transition: all 0.2s;
+}
+.search-btn:active { transform: scale(0.96); background: rgba(66,133,244,0.25); }
+
+/* ── Config ── */
+.config-section {
+  margin-top: 40px; padding: 20px;
+  background: var(--bg-card); border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+}
+.config-section label {
+  font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;
+}
+.config-row {
+  display: flex; gap: 10px; align-items: flex-end;
+}
+.config-row .modal-input { margin-bottom: 0; }
+.config-row .btn { flex: 0 0 auto; padding: 14px 20px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+
+/* ── Animations ── */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Fondo animado -->
+<div class="bg-particles">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+
+<!-- Corazones flotantes -->
+<div class="floating-hearts" id="floatingHearts"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Contenido -->
+<div class="container">
+
+  <!-- Header -->
+  <div class="header fade-in">
+    <div class="header-icon">💕</div>
+    <h1>Nuestras Citas</h1>
+    <p>Elegí el lugar perfecto para nosotros</p>
+  </div>
+
+  <!-- Frase del día -->
+  <div class="quote-card fade-in" style="animation-delay: 0.1s">
+    <div class="quote-label">Frase del día</div>
+    <div class="quote-text" id="dailyQuote"></div>
+    <div class="quote-icon">🌹</div>
+  </div>
+
+  <!-- Calendario -->
+  <div class="section fade-in" style="animation-delay: 0.2s">
+    <div class="section-title"><span>📅</span> Elegí una fecha</div>
+    <div class="calendar-card">
+      <div class="cal-header">
+        <h3 id="calMonthYear"></h3>
+        <div class="cal-nav">
+          <button onclick="changeMonth(-1)">‹</button>
+          <button onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+      <div class="cal-weekdays">
+        <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span>
+        <span>Vi</span><span>Sá</span><span>Do</span>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+      <div class="selected-date-display" id="selectedDateDisplay">
+        <div class="date-text" id="selectedDateText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categorías -->
+  <div class="section fade-in" style="animation-delay: 0.3s">
+    <div class="section-title"><span>✨</span> ¿Qué tipo de cita?</div>
+    <div class="categories-grid" id="categoriesGrid"></div>
+  </div>
+
+  <!-- Citas guardadas -->
+  <div class="section fade-in" style="animation-delay: 0.4s">
+    <div class="section-title"><span>💝</span> Nuestras citas planeadas</div>
+    <div class="saved-dates" id="savedDates"></div>
+    <div class="global-actions" id="globalActions" style="display:none">
+      <button class="btn btn-whatsapp btn-icon" onclick="shareAllWhatsApp()">
+        📱 Enviar por WhatsApp
+      </button>
+      <button class="btn btn-secondary btn-icon" onclick="exportCSV()">
+        📊 Exportar Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Config -->
+  <div class="config-section fade-in" style="animation-delay: 0.5s">
+    <div class="section-title" style="margin-bottom: 8px"><span>⚙️</span> Configuración</div>
+    <label>Ciudad (para buscar lugares cerca tuyo)</label>
+    <div class="config-row">
+      <input type="text" class="modal-input" id="cityInput" placeholder="Ej: Buenos Aires" style="margin-bottom:0">
+      <button class="btn btn-primary" onclick="saveCity()" style="flex:0 0 auto;padding:14px 20px">Guardar</button>
+    </div>
+    <label style="margin-top: 12px">Número de WhatsApp de tu novio (con código de país)</label>
+    <div class="config-row">
+      <input type="text" class="modal-input" id="waNumberInput" placeholder="Ej: 5491112345678" style="margin-bottom:0">
+      <button class="btn btn-primary" onclick="saveWANumber()" style="flex:0 0 auto;padding:14px 20px">Guardar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  FRASES DE AMOR — cambia cada día a las 7am
+// ══════════════════════════════════════════════
+const FRASES = [
+  "Cada día a tu lado es mi día favorito.",
+  "Sos la razón por la que sonrío sin motivo.",
+  "Mi lugar favorito es cualquiera donde estés vos.",
+  "Contigo hasta los lunes son bonitos.",
+  "Sos mi persona favorita en todas las dimensiones.",
+  "Te elijo hoy, mañana, y todos los días después.",
+  "Mi corazón tiene tu nombre escrito en cada latido.",
+  "Cada momento contigo es un recuerdo que quiero guardar para siempre.",
+  "Sos el plot twist más lindo de mi historia.",
+  "No necesito Wi-Fi cuando estoy conectado a vos.",
+  "Sos la notificación que siempre quiero recibir.",
+  "Mi app favorita sos vos.",
+  "Si los besos fueran estrellas, te daría todo el cielo.",
+  "Sos mi canción favorita en repeat infinito.",
+  "Cada segundo sin vos es un segundo desperdiciado.",
+  "Me encanta cómo hacés que lo ordinario sea extraordinario.",
+  "Sos mi destino favorito, sin necesidad de GPS.",
+  "Te quiero más que a la pizza. Y eso es mucho decir.",
+  "Si fueras un café, serías el más dulce del mundo.",
+  "Sos la mejor parte de despertar cada mañana.",
+  "Me enamoré de tu sonrisa, y de todo lo que vino con ella.",
+  "Contigo aprendí que el amor no se busca, se encuentra.",
+  "Sos mi tipo de locura favorita.",
+  "Cada día invento nuevas razones para quererte más.",
+  "Me haces sentir como protagonista de una película romántica.",
+  "Sos la respuesta a una pregunta que ni sabía que tenía.",
+  "Amar es un verbo, y vos sos toda su conjugación.",
+  "Mi sueño favorito es el que te incluye a vos.",
+  "Sos como un atardecer: cada vez que te veo, me quedo sin palabras.",
+  "Te quiero con todas las letras y con todas las que me faltan.",
+  "Si pudiera regalarte algo, te daría la capacidad de verte con mis ojos.",
+  "Sos mi antes y después favorito.",
+  "Cada día te quiero un poquito más que ayer, y mañana será igual.",
+  "Sos la prueba de que las cosas buenas existen.",
+  "Mi corazón hace ctrl+S cada vez que te veo.",
+  "Contigo hasta perderse es encontrar un buen camino.",
+  "Sos mi 11:11 de cada día.",
+  "Te quiero como se quiere al sol: con toda la piel.",
+  "Si la felicidad tuviera forma, tendría la tuya.",
+  "Sos la razón por la que creo en las coincidencias perfectas.",
+  "Cada abrazo tuyo es un viaje al lugar más cálido del mundo.",
+  "Me gustás más que el primer café de la mañana.",
+  "Si el amor fuera un idioma, vos serías mi lengua materna.",
+  "Sos mi persona favorita con la que perder el tiempo.",
+  "Te quiero tanto que hasta las matemáticas se quedan cortas.",
+  "Mi corazón late en tu frecuencia.",
+  "Sos como las estrellas: siempre estás ahí, aunque a veces no te vea.",
+  "Contigo todo pesa menos y sabe mejor.",
+  "Sos mi dosis diaria de felicidad.",
+  "Te quiero con la intensidad del sol y la calma de la luna.",
+  "Cada risa tuya es la mejor melodía que escuché.",
+  "Sos el detalle más bonito de mi vida.",
+  "Me encanta que me elijas cada día.",
+  "Sos mi hogar favorito, sin paredes ni techo.",
+  "Te quiero así, tal cual sos, con todo y tus manías.",
+  "Si pudiera detener el tiempo, lo haría en cada beso tuyo.",
+  "Sos mi universo en una sola persona.",
+  "Cada día aprendo algo nuevo para quererte mejor.",
+  "Me enamoré de lo que sos cuando nadie te mira.",
+  "Sos la magia que le faltaba a mi vida.",
+  "Te quiero de ida, de vuelta, y de todas las formas posibles.",
+  "Sos el emoji de corazón en todos mis mensajes.",
+  "Contigo quiero todos los viernes y todos los domingos.",
+  "Me haces creer que los cuentos de hadas son reales.",
+  "Sos mi razón favorita para volver a casa.",
+  "Te quiero más que ayer pero menos que mañana.",
+  "Sos la calma que necesita mi tormenta.",
+  "Cada foto contigo es mi favorita.",
+  "Mi vida era en blanco y negro hasta que llegaste vos.",
+  "Sos mi media naranja, mi naranja entera y todo el árbol.",
+  "Te quiero con cada fibra de mi ser.",
+  "Sos el regalo más lindo que me dio la vida.",
+  "Contigo todo tiene sentido, hasta lo que no lo tenía.",
+  "Me encanta mirarte y saber que sos mía.",
+  "Sos la estrella que ilumina mis noches más oscuras.",
+  "Te quiero en todas las estaciones del año.",
+  "Sos mi vitamina diaria de amor.",
+  "Cada minuto contigo vale más que cualquier tesoro.",
+  "Me gustás desde el primer café hasta el último beso.",
+  "Sos mi aventura favorita.",
+  "Te quiero tanto que las palabras se me quedan chicas.",
+  "Sos la sonrisa que no me puedo sacar de la cara.",
+  "Contigo quiero escribir la historia más linda del mundo.",
+  "Me enamoré de la forma en que me mirás.",
+  "Sos mi cable a tierra y mis alas al mismo tiempo.",
+  "Te quiero de aquí hasta donde se acaban los números.",
+  "Sos lo mejor que me pasó sin buscarlo.",
+  "Cada día doy gracias por tenerte.",
+  "Me hacés feliz sin siquiera intentarlo.",
+  "Sos la persona con la que quiero envejecer.",
+  "Te quiero más de lo que las palabras pueden decir.",
+  "Sos mi primer pensamiento y mi último suspiro del día.",
+  "Contigo hasta el silencio suena bonito.",
+  "Me encanta que existamos al mismo tiempo.",
+  "Sos mi definición favorita de amor.",
+  "Te quiero hoy y todos los hoys que vengan.",
+  "Sos la prueba de que la felicidad tiene nombre y apellido.",
+  "Cada día es mejor porque lo vivo con vos.",
+  "Me gustás tanto que a veces se me olvida respirar.",
+  "Sos mi historia de amor favorita, la que todavía estamos escribiendo.",
+  "Te quiero con locura, con calma, con todo lo que tengo.",
+  "Sos el motivo por el que creo en el destino.",
+  "Cada momento contigo es un instante de eternidad.",
+  "Me enamoré de los detalles que nadie más ve.",
+  "Sos mi sol en los días nublados.",
+  "Te quiero más allá del infinito, y después un poquito más.",
+  "Sos la mejor decisión que tomé sin pensarlo.",
+  "Contigo aprendí que el amor es un verbo, no solo un sentimiento.",
+  "Me hacés querer ser la mejor versión de mí.",
+  "Sos mi refugio favorito.",
+  "Te quiero con todos mis defectos y con todos los tuyos.",
+  "Sos la chispa que enciende mi mundo entero.",
+  "Cada día con vos es un capítulo que no quiero que termine.",
+  "Me encanta despertarme y saber que sos parte de mi vida.",
+  "Sos todo lo que siempre quise y nunca supe pedir.",
+  "Te quiero tanto que inventaría un nuevo idioma solo para decírtelo.",
+  "Sos mi persona, mi cómplice, mi todo.",
+  "Contigo las horas son minutos y los minutos son eternos.",
+  "Me enamoré de cómo hacés latir mi corazón más rápido.",
+  "Sos la canción que nunca me canso de escuchar.",
+  "Te quiero con la fuerza de mil soles.",
+  "Sos mi mirada favorita al despertar.",
+  "Cada día te descubro de nuevo y me enamoro otra vez.",
+  "Me gustás como el primer día, pero multiplicado por mil.",
+  "Sos mi tipo de para siempre.",
+  "Te quiero de todas las maneras que existen y de las que faltan por inventar.",
+  "Sos la parte más bonita de cualquier día.",
+  "Contigo quiero todos los atardeceres.",
+  "Me hacés sentir mariposas después de tanto tiempo, y eso es mágico.",
+  "Sos el abrazo que siempre necesito.",
+  "Te quiero incluso cuando me sacás de quicio.",
+  "Sos mi lugar seguro en un mundo caótico.",
+  "Cada risa compartida con vos es un tesoro.",
+  "Me encanta que seamos nosotros.",
+  "Sos mi compañera de vida, de sueños y de locuras.",
+  "Te quiero con café, sin café, con lluvia y con sol.",
+  "Sos la luz que no se apaga.",
+  "Cada día me asombra lo mucho que te quiero.",
+  "Me enamoré de tu forma de ver el mundo.",
+  "Sos lo que no sabía que necesitaba hasta que te encontré.",
+  "Te quiero así, imperfectamente perfecta.",
+  "Sos mi revolución más bonita.",
+  "Contigo aprendí el significado real de la palabra hogar.",
+  "Me hacés creer en la magia de lo simple.",
+  "Sos mi mejor descubrimiento.",
+  "Te quiero con todas las fuerzas que me quedan y las que todavía no tengo.",
+  "Sos la razón por la que creo que todo vale la pena.",
+  "Cada segundo contigo es una inversión en felicidad.",
+  "Me gustás hasta cuando no te das cuenta de lo increíble que sos.",
+  "Sos mi amor en mayúsculas.",
+  "Te quiero con cada amanecer y con cada estrella que sale.",
+  "Sos el regalo que la vida me dio sin que yo lo pidiera.",
+  "Contigo soy la mejor versión de la historia de nosotros.",
+  "Me encanta que seas mi persona favorita en todo el universo.",
+  "Sos la paz que no sabía que estaba buscando.",
+  "Te quiero infinitamente. Y mañana un poco más.",
+  "Sos el amor de mi vida, y lo digo sin miedo.",
+  "Cada día con vos es como abrir un regalo.",
+  "Me enamoré de todo lo que sos y de todo lo que serás.",
+  "Sos mi más bonita casualidad.",
+  "Te quiero como nunca pensé que podría querer a alguien.",
+  "Sos mi pedacito de cielo aquí en la tierra.",
+  "Contigo quiero cada aventura, grande o pequeña.",
+  "Me hacés sentir la persona más afortunada del mundo.",
+  "Sos mi razón, mi locura y mi paz. Todo al mismo tiempo.",
+  "Te quiero de aquí a la luna. Y la luna está lejos.",
+  "Sos lo más lindo que me pasó.",
+  "Cada momento contigo es simplemente perfecto.",
+  "Me gustás como me gusta el sol: no puedo dejar de buscarte.",
+  "Sos mi amor eterno en un mundo temporal.",
+  "Te quiero con todo mi corazón y con el corazón que me falta.",
+  "Sos la persona que me hace querer ser valiente.",
+  "Contigo aprendí que el amor verdadero no es perfecto, es real.",
+  "Me encanta que seas mi compañera de ruta.",
+  "Sos mi sueño más bonito hecho realidad.",
+];
+
+const CATEGORIAS = [
+  { id: 'bar', icon: '🍷', name: 'Bares & Copas', desc: 'Cocktails y buena onda', query: 'bares+cocteles' },
+  { id: 'restaurant', icon: '🍽️', name: 'Restaurantes', desc: 'Cenas románticas', query: 'restaurantes+romanticos' },
+  { id: 'cafe', icon: '☕', name: 'Cafeterías', desc: 'Charla y café', query: 'cafeterias+lindas' },
+  { id: 'cinema', icon: '🎬', name: 'Cine & Teatro', desc: 'Películas y shows', query: 'cine+teatro' },
+  { id: 'outdoor', icon: '🌳', name: 'Aire Libre', desc: 'Parques y paseos', query: 'parques+paseos+al+aire+libre' },
+  { id: 'entertainment', icon: '🎮', name: 'Entretenimiento', desc: 'Juegos y diversión', query: 'entretenimiento+boliche+escape+room' },
+  { id: 'spa', icon: '💆', name: 'Spa & Relax', desc: 'Día de relajación', query: 'spa+masajes' },
+  { id: 'culture', icon: '🎨', name: 'Arte & Cultura', desc: 'Museos y galerías', query: 'museos+galerias+arte' },
+  { id: 'music', icon: '🎵', name: 'Música en Vivo', desc: 'Recitales y shows', query: 'musica+en+vivo+recitales' },
+  { id: 'food', icon: '🍕', name: 'Street Food', desc: 'Ferias y foodtrucks', query: 'ferias+gastronomicas+food+trucks' },
+];
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIAS_SEMANA = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+// ══════════════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════════════
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let selectedDate = null;
+let savedCitas = [];
+let userCity = '';
+let waNumber = '';
+
+function loadState() {
+  try {
+    savedCitas = JSON.parse(localStorage.getItem('citas_data') || '[]');
+    userCity = localStorage.getItem('citas_city') || '';
+    waNumber = localStorage.getItem('citas_wa') || '';
+  } catch(e) { savedCitas = []; }
+  document.getElementById('cityInput').value = userCity;
+  document.getElementById('waNumberInput').value = waNumber;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('citas_data', JSON.stringify(savedCitas));
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
+//  FRASE DEL DÍA
+// ══════════════════════════════════════════════
+function getDailyQuote() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  let dayOfYear = Math.floor(diff / oneDay);
+  if (now.getHours() < 7) dayOfYear -= 1;
+  if (dayOfYear < 0) dayOfYear = 0;
+  return FRASES[dayOfYear % FRASES.length];
+}
+
+function updateQuote() {
+  document.getElementById('dailyQuote').textContent = getDailyQuote();
+}
+
+// ══════════════════════════════════════════════
+//  CALENDARIO
+// ══════════════════════════════════════════════
+function renderCalendar() {
+  const monthNames = MESES;
+  document.getElementById('calMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  let startDay = firstDay.getDay() - 1;
+  if (startDay < 0) startDay = 6;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const container = document.getElementById('calDays');
+  container.innerHTML = '';
+
+  const prevLast = new Date(currentYear, currentMonth, 0).getDate();
+  for (let i = startDay - 1; i >= 0; i--) {
+    const btn = document.createElement('button');
+    btn.className = 'cal-day other-month';
+    btn.textContent = prevLast - i;
+    container.appendChild(btn);
+  }
+
+  const citaDates = savedCitas.map(c => c.date);
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const btn = document.createElement('button');
+    btn.className = 'cal-day';
+    btn.textContent = d;
+    const thisDate = new Date(currentYear, currentMonth, d);
+    thisDate.setHours(0,0,0,0);
+    const dateStr = formatDateISO(thisDate);
+
+    if (thisDate < today) btn.classList.add('past');
+    if (thisDate.getTime() === today.getTime()) btn.classList.add('today');
+    if (citaDates.includes(dateStr)) btn.classList.add('has-event');
+    if (selectedDate === dateStr) btn.classList.add('selected');
+
+    if (thisDate >= today) {
+      btn.onclick = () => selectDate(dateStr, thisDate);
+    }
+    container.appendChild(btn);
+  }
+
+  const totalCells = startDay + lastDay.getDate();
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'cal-day other-month';
+    btn.textContent = i;
+    container.appendChild(btn);
+  }
+}
+
+function selectDate(dateStr, dateObj) {
+  selectedDate = dateStr;
+  renderCalendar();
+  const display = document.getElementById('selectedDateDisplay');
+  display.classList.add('show');
+  const dayName = DIAS_SEMANA[dateObj.getDay()];
+  const monthName = MESES[dateObj.getMonth()];
+  document.getElementById('selectedDateText').textContent =
+    `${capitalize(dayName)} ${dateObj.getDate()} de ${monthName}`;
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  renderCalendar();
+}
+
+// ══════════════════════════════════════════════
+//  CATEGORÍAS
+// ══════════════════════════════════════════════
+function renderCategories() {
+  const grid = document.getElementById('categoriesGrid');
+  grid.innerHTML = CATEGORIAS.map(cat => `
+    <div class="category-btn" onclick="openCategoryModal('${cat.id}')">
+      <div class="cat-icon">${cat.icon}</div>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-desc">${cat.desc}</div>
+    </div>
+  `).join('');
+}
+
+function openCategoryModal(catId) {
+  if (!selectedDate) {
+    showToast('Primero elegí una fecha en el calendario 📅');
+    return;
+  }
+
+  const cat = CATEGORIAS.find(c => c.id === catId);
+  const city = userCity || 'tu ciudad';
+  const mapsUrl = `https://www.google.com/maps/search/${cat.query}+${encodeURIComponent(city)}`;
+
+  const modal = document.getElementById('modal');
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-title">${cat.icon} ${cat.name}</div>
+
+    <div class="search-actions">
+      <a href="${mapsUrl}" target="_blank" class="search-btn" style="text-decoration:none">
+        🗺️ Buscar en Google Maps
+      </a>
+      <button class="search-btn" onclick="useGeolocation('${cat.query}')">
+        📍 Cerca mío
+      </button>
+    </div>
+
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-align:center">
+      Buscá en Maps y después escribí el lugar que te gustó:
+    </p>
+
+    <input type="text" class="modal-input" id="placeName" placeholder="Nombre del lugar">
+    <input type="text" class="modal-input" id="placeAddress" placeholder="Dirección (opcional)">
+    <textarea class="modal-input" id="placeNotes" placeholder="Notas o ideas para la cita..."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCita('${catId}')">💕 Guardar cita</button>
+    </div>
+  `;
+  modal.classList.add('show');
+}
+
+function useGeolocation(query) {
+  if (!navigator.geolocation) {
+    showToast('Tu navegador no soporta geolocalización');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const url = `https://www.google.com/maps/search/${query}/@${pos.coords.latitude},${pos.coords.longitude},14z`;
+      window.open(url, '_blank');
+    },
+    () => showToast('No se pudo obtener tu ubicación')
+  );
+}
+
+// ══════════════════════════════════════════════
+//  GUARDAR CITA
+// ══════════════════════════════════════════════
+function saveCita(catId) {
+  const name = document.getElementById('placeName').value.trim();
+  if (!name) { showToast('Escribí el nombre del lugar'); return; }
+
+  const cat = CATEGORIAS.find(c => c.id === catId);
+  const cita = {
+    id: Date.now(),
+    date: selectedDate,
+    place: name,
+    address: document.getElementById('placeAddress').value.trim(),
+    notes: document.getElementById('placeNotes').value.trim(),
+    category: cat.name,
+    categoryIcon: cat.icon,
+    createdAt: new Date().toISOString()
+  };
+
+  savedCitas.push(cita);
+  saveState();
+  closeModal();
+  renderSavedDates();
+  renderCalendar();
+  showToast('¡Cita guardada! 💕');
+}
+
+// ══════════════════════════════════════════════
+//  MOSTRAR CITAS GUARDADAS
+// ══════════════════════════════════════════════
+function renderSavedDates() {
+  const container = document.getElementById('savedDates');
+  const actions = document.getElementById('globalActions');
+
+  if (savedCitas.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📍</div>
+        <p>Todavía no hay citas planeadas</p>
+        <p style="font-size:12px;margin-top:4px">Elegí una fecha y un lugar para empezar</p>
+      </div>
+    `;
+    actions.style.display = 'none';
+    return;
+  }
+
+  actions.style.display = 'flex';
+  const sorted = [...savedCitas].sort((a,b) => a.date.localeCompare(b.date));
+
+  container.innerHTML = sorted.map(cita => {
+    const d = parseDate(cita.date);
+    const dayName = capitalize(DIAS_SEMANA[d.getDay()]);
+    const dateStr = `${dayName} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+    return `
+      <div class="date-card">
+        <div class="date-card-header">
+          <div class="date-card-info">
+            <h4>${dateStr}</h4>
+            <div class="date-place">${cita.categoryIcon} ${cita.place}</div>
+            ${cita.address ? `<div class="date-category">📍 ${cita.address}</div>` : ''}
+            ${cita.notes ? `<div class="date-notes">"${cita.notes}"</div>` : ''}
+            <div class="date-category">🏷️ ${cita.category}</div>
+          </div>
+          <div class="date-card-actions">
+            <button onclick="shareCitaWA(${cita.id})" title="Compartir">📱</button>
+            <button onclick="deleteCita(${cita.id})" title="Eliminar">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteCita(id) {
+  savedCitas = savedCitas.filter(c => c.id !== id);
+  saveState();
+  renderSavedDates();
+  renderCalendar();
+  showToast('Cita eliminada');
+}
+
+// ══════════════════════════════════════════════
+//  COMPARTIR POR WHATSAPP
+// ══════════════════════════════════════════════
+function shareCitaWA(id) {
+  const cita = savedCitas.find(c => c.id === id);
+  if (!cita) return;
+  const d = parseDate(cita.date);
+  const dayName = capitalize(DIAS_SEMANA[d.getDay()]);
+  const dateStr = `${dayName} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+
+  let msg = `💕 *¡Tenemos una cita!*\n\n`;
+  msg += `📅 ${dateStr}\n`;
+  msg += `${cita.categoryIcon} ${cita.place}\n`;
+  if (cita.address) msg += `📍 ${cita.address}\n`;
+  if (cita.notes) msg += `💬 ${cita.notes}\n`;
+  msg += `\n❤️ Te amo`;
+
+  const num = waNumber.replace(/\D/g, '');
+  const url = num
+    ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function shareAllWhatsApp() {
+  if (savedCitas.length === 0) return;
+  const sorted = [...savedCitas].sort((a,b) => a.date.localeCompare(b.date));
+
+  let msg = `💕 *Nuestras próximas citas:*\n\n`;
+  sorted.forEach(cita => {
+    const d = parseDate(cita.date);
+    const dayName = capitalize(DIAS_SEMANA[d.getDay()]);
+    const dateStr = `${dayName} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+    msg += `📅 ${dateStr}\n`;
+    msg += `${cita.categoryIcon} ${cita.place}\n`;
+    if (cita.address) msg += `📍 ${cita.address}\n`;
+    msg += `\n`;
+  });
+  msg += `❤️ Te amo`;
+
+  const num = waNumber.replace(/\D/g, '');
+  const url = num
+    ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════════
+//  EXPORTAR CSV (Excel)
+// ══════════════════════════════════════════════
+function exportCSV() {
+  if (savedCitas.length === 0) { showToast('No hay citas para exportar'); return; }
+  const sorted = [...savedCitas].sort((a,b) => a.date.localeCompare(b.date));
+
+  let csv = '﻿'; // BOM for Excel
+  csv += 'Fecha,Dia,Lugar,Direccion,Categoria,Notas\n';
+  sorted.forEach(cita => {
+    const d = parseDate(cita.date);
+    const dayName = capitalize(DIAS_SEMANA[d.getDay()]);
+    const dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    csv += `"${dateStr}","${dayName}","${esc(cita.place)}","${esc(cita.address)}","${esc(cita.category)}","${esc(cita.notes)}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `nuestras_citas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('¡Archivo descargado! 📊');
+}
+
+// ══════════════════════════════════════════════
+//  CONFIGURACIÓN
+// ══════════════════════════════════════════════
+function saveCity() {
+  userCity = document.getElementById('cityInput').value.trim();
+  try { localStorage.setItem('citas_city', userCity); } catch(e) {}
+  showToast(userCity ? `Ciudad: ${userCity} 📍` : 'Ciudad eliminada');
+}
+
+function saveWANumber() {
+  waNumber = document.getElementById('waNumberInput').value.trim();
+  try { localStorage.setItem('citas_wa', waNumber); } catch(e) {}
+  showToast(waNumber ? 'Número guardado 📱' : 'Número eliminado');
+}
+
+// ══════════════════════════════════════════════
+//  UTILIDADES
+// ══════════════════════════════════════════════
+function formatDateISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function parseDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function esc(s) { return (s||'').replace(/"/g, '""'); }
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════
+//  CORAZONES FLOTANTES
+// ══════════════════════════════════════════════
+function createHearts() {
+  const container = document.getElementById('floatingHearts');
+  const hearts = ['💕','💗','💖','✨','💫','🌸'];
+  for (let i = 0; i < 15; i++) {
+    const span = document.createElement('span');
+    span.className = 'heart-particle';
+    span.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDuration = (12 + Math.random() * 18) + 's';
+    span.style.animationDelay = (Math.random() * 20) + 's';
+    span.style.fontSize = (10 + Math.random() * 10) + 'px';
+    container.appendChild(span);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  VERIFICAR NUEVA FRASE (cada minuto)
+// ══════════════════════════════════════════════
+let lastQuoteIndex = -1;
+function checkQuoteUpdate() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  let dayOfYear = Math.floor((now - start) / 86400000);
+  if (now.getHours() < 7) dayOfYear -= 1;
+  if (dayOfYear < 0) dayOfYear = 0;
+  const idx = dayOfYear % FRASES.length;
+  if (idx !== lastQuoteIndex) {
+    lastQuoteIndex = idx;
+    updateQuote();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  INICIALIZACIÓN
+// ══════════════════════════════════════════════
+loadState();
+updateQuote();
+renderCalendar();
+renderCategories();
+renderSavedDates();
+createHearts();
+setInterval(checkQuoteUpdate, 60000);
+</script>
+</body>
+</html>
