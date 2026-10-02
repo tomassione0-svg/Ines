@@ -399,21 +399,6 @@ textarea.modal-input { min-height: 80px; resize: none; }
 }
 .search-btn:active { transform: scale(0.96); background: rgba(66,133,244,0.25); }
 
-/* ── Config ── */
-.config-section {
-  margin-top: 40px; padding: 20px;
-  background: var(--bg-card); border-radius: var(--radius);
-  border: 1px solid var(--glass-border);
-}
-.config-section label {
-  font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;
-}
-.config-row {
-  display: flex; gap: 10px; align-items: flex-end;
-}
-.config-row .modal-input { margin-bottom: 0; }
-.config-row .btn { flex: 0 0 auto; padding: 14px 20px; }
-
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -450,8 +435,8 @@ textarea.modal-input { min-height: 80px; resize: none; }
   <!-- Header -->
   <div class="header fade-in">
     <div class="header-icon">💕</div>
-    <h1>Nuestras Citas</h1>
-    <p>Elegí el lugar perfecto para nosotros</p>
+    <h1>Para vos, Inés</h1>
+    <p>Elegí la fecha, elegí el plan y mandalo 💌</p>
   </div>
 
   <!-- Frase del día -->
@@ -503,20 +488,6 @@ textarea.modal-input { min-height: 80px; resize: none; }
     </div>
   </div>
 
-  <!-- Config -->
-  <div class="config-section fade-in" style="animation-delay: 0.5s">
-    <div class="section-title" style="margin-bottom: 8px"><span>⚙️</span> Configuración</div>
-    <label>Ciudad (para buscar lugares cerca tuyo)</label>
-    <div class="config-row">
-      <input type="text" class="modal-input" id="cityInput" placeholder="Ej: Buenos Aires" style="margin-bottom:0">
-      <button class="btn btn-primary" onclick="saveCity()" style="flex:0 0 auto;padding:14px 20px">Guardar</button>
-    </div>
-    <label style="margin-top: 12px">Número de WhatsApp de tu novio (con código de país)</label>
-    <div class="config-row">
-      <input type="text" class="modal-input" id="waNumberInput" placeholder="Ej: 5491112345678" style="margin-bottom:0">
-      <button class="btn btn-primary" onclick="saveWANumber()" style="flex:0 0 auto;padding:14px 20px">Guardar</button>
-    </div>
-  </div>
 
 </div>
 
@@ -730,17 +701,12 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let selectedDate = null;
 let savedCitas = [];
-let userCity = '';
-let waNumber = '';
+const WA_NUMBER = '5491137581792';
 
 function loadState() {
   try {
     savedCitas = JSON.parse(localStorage.getItem('citas_data') || '[]');
-    userCity = localStorage.getItem('citas_city') || '';
-    waNumber = localStorage.getItem('citas_wa') || '';
   } catch(e) { savedCitas = []; }
-  document.getElementById('cityInput').value = userCity;
-  document.getElementById('waNumberInput').value = waNumber;
 }
 
 function saveState() {
@@ -863,8 +829,7 @@ function openCategoryModal(catId) {
   }
 
   const cat = CATEGORIAS.find(c => c.id === catId);
-  const city = userCity || 'tu ciudad';
-  const mapsUrl = `https://www.google.com/maps/search/${cat.query}+${encodeURIComponent(city)}`;
+  const mapsUrl = `https://www.google.com/maps/search/${cat.query}`;
 
   const modal = document.getElementById('modal');
   document.getElementById('modalContent').innerHTML = `
@@ -872,16 +837,16 @@ function openCategoryModal(catId) {
     <div class="modal-title">${cat.icon} ${cat.name}</div>
 
     <div class="search-actions">
+      <button class="search-btn" onclick="useGeolocation('${cat.query}')">
+        📍 Buscar cerca mío
+      </button>
       <a href="${mapsUrl}" target="_blank" class="search-btn" style="text-decoration:none">
         🗺️ Buscar en Google Maps
       </a>
-      <button class="search-btn" onclick="useGeolocation('${cat.query}')">
-        📍 Cerca mío
-      </button>
     </div>
 
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-align:center">
-      Buscá en Maps y después escribí el lugar que te gustó:
+      Buscá en Maps, elegí el que te guste y escribilo acá:
     </p>
 
     <input type="text" class="modal-input" id="placeName" placeholder="Nombre del lugar">
@@ -890,7 +855,7 @@ function openCategoryModal(catId) {
 
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveCita('${catId}')">💕 Guardar cita</button>
+      <button class="btn btn-primary" onclick="saveCita('${catId}')">💕 Guardar y enviar</button>
     </div>
   `;
   modal.classList.add('show');
@@ -934,7 +899,8 @@ function saveCita(catId) {
   closeModal();
   renderSavedDates();
   renderCalendar();
-  showToast('¡Cita guardada! 💕');
+  showToast('¡Enviando a Tomi! 💕');
+  setTimeout(() => shareCitaWA(cita.id), 500);
 }
 
 // ══════════════════════════════════════════════
@@ -949,7 +915,7 @@ function renderSavedDates() {
       <div class="empty-state">
         <div class="empty-icon">📍</div>
         <p>Todavía no hay citas planeadas</p>
-        <p style="font-size:12px;margin-top:4px">Elegí una fecha y un lugar para empezar</p>
+        <p style="font-size:12px;margin-top:4px">Elegí una fecha, elegí el plan y se manda directo 💌</p>
       </div>
     `;
     actions.style.display = 'none';
@@ -1008,11 +974,7 @@ function shareCitaWA(id) {
   if (cita.notes) msg += `💬 ${cita.notes}\n`;
   msg += `\n❤️ Te amo`;
 
-  const num = waNumber.replace(/\D/g, '');
-  const url = num
-    ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
-    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function shareAllWhatsApp() {
@@ -1031,11 +993,7 @@ function shareAllWhatsApp() {
   });
   msg += `❤️ Te amo`;
 
-  const num = waNumber.replace(/\D/g, '');
-  const url = num
-    ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
-    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // ══════════════════════════════════════════════
@@ -1062,20 +1020,6 @@ function exportCSV() {
   showToast('¡Archivo descargado! 📊');
 }
 
-// ══════════════════════════════════════════════
-//  CONFIGURACIÓN
-// ══════════════════════════════════════════════
-function saveCity() {
-  userCity = document.getElementById('cityInput').value.trim();
-  try { localStorage.setItem('citas_city', userCity); } catch(e) {}
-  showToast(userCity ? `Ciudad: ${userCity} 📍` : 'Ciudad eliminada');
-}
-
-function saveWANumber() {
-  waNumber = document.getElementById('waNumberInput').value.trim();
-  try { localStorage.setItem('citas_wa', waNumber); } catch(e) {}
-  showToast(waNumber ? 'Número guardado 📱' : 'Número eliminado');
-}
 
 // ══════════════════════════════════════════════
 //  UTILIDADES
